@@ -6,8 +6,8 @@ const globalForPrisma = globalThis as unknown as {
 
 function getPrismaClient(): PrismaClient {
   // Safe fallback for DATABASE_URL during build time static analysis
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = 'file:./dev.db';
+  if (!process.env.DATABASE_URL || process.env.DATABASE_URL.startsWith('file:')) {
+    process.env.DATABASE_URL = 'mongodb://localhost:27017/veterinary_clinic';
   }
 
   if (!globalForPrisma.prisma) {

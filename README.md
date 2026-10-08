@@ -35,8 +35,7 @@ Veterinary Clinic Manager provides a centralized hub where pet parents can regis
 
 - **Framework**: [Next.js](https://nextjs.org/) (App Router, Server Actions / API Routes)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) with Lucide React icons
-- **Database & ORM**: [Prisma ORM](https://www.prisma.io/) (configured with SQLite for zero-setup local execution, ready for PostgreSQL deployment)
+- **Database & ORM**: [Prisma ORM](https://www.prisma.io/) with **MongoDB Atlas**
 - **Authentication**: Secure bcrypt password hashing, Edge-compatible JWT via `jose`, HTTP-only secure cookies, and role-based authorization guards
 - **Charts & Data Viz**: [Recharts](https://recharts.org/)
 - **Date Handling**: [date-fns](https://date-fns.org/)
@@ -171,25 +170,26 @@ npm run start
 
 ---
 
-## 🌐 Deploying to Production (Vercel, Render, PostgreSQL)
+## 🌐 Deploying to Production (Vercel & Render)
 
-### Switching to Managed PostgreSQL (e.g., Supabase, Neon, Railway)
-1. Open `prisma/schema.prisma` and update the datasource provider:
-   ```prisma
-   datasource db {
-     provider = "postgresql"
-     url      = env("DATABASE_URL")
-   }
-   ```
-2. In your deployment dashboard (e.g., Vercel, Render), set the environment variables:
-   - `DATABASE_URL`: `postgresql://user:password@host:5432/vetclinic?sslmode=require`
+### Vercel Deployment
+1. Connect your repository to Vercel.
+2. In Project Settings > Environment Variables, configure:
+   - `DATABASE_URL`: `mongodb+srv://bymuthakachennudu_db_user:<db_password>@cluster0.fjfmqe7.mongodb.net/veterinary_clinic?retryWrites=true&w=majority&appName=Cluster0`
    - `SESSION_SECRET`: A secure 32+ character random secret string
-   - `NEXT_PUBLIC_APP_URL`: Your production domain URL (e.g. `https://vetclinic.example.com`)
-3. Run migrations on the production database:
-   ```bash
-   npx prisma db push
-   npm run prisma:seed
-   ```
+   - `NEXT_PUBLIC_APP_URL`: Your Vercel production URL
+3. Build command runs `npm run build` (which executes `prisma generate && next build`).
+
+### Render Deployment
+1. Create a new Web Service on Render from your repository.
+2. Settings:
+   - **Environment**: `Node`
+   - **Build Command**: `npm install && npx prisma generate && npx prisma db push && npm run build`
+   - **Start Command**: `npm start`
+3. In Environment Variables, configure:
+   - `DATABASE_URL`: Your MongoDB Atlas connection string
+   - `SESSION_SECRET`: A secure 32+ character random secret string
+   - `NEXT_PUBLIC_APP_URL`: Your Render production URL
 
 ---
 

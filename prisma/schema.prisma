@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   email     String   @unique
   password  String
@@ -22,11 +22,13 @@ model User {
   veterinarianProfile VeterinarianProfile?
   appointments        Appointment[]
   notifications       Notification[]
+
+  @@map("users")
 }
 
 model VeterinarianProfile {
-  id             String   @id @default(cuid())
-  userId         String   @unique
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String   @unique @db.ObjectId
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   specialization String
   licenseNumber  String
@@ -40,10 +42,12 @@ model VeterinarianProfile {
   appointments     Appointment[]
   vaccinations     Vaccination[]
   treatmentRecords TreatmentRecord[]
+
+  @@map("veterinarian_profiles")
 }
 
 model Pet {
-  id                 String    @id @default(cuid())
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
   name               String
   species            String // Dog, Cat, Bird, Rabbit, Other
   breed              String
@@ -57,7 +61,7 @@ model Pet {
   existingConditions String?
   notes              String?
   photo              String?
-  ownerId            String
+  ownerId            String    @db.ObjectId
   owner              User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
@@ -65,15 +69,17 @@ model Pet {
   appointments     Appointment[]
   vaccinations     Vaccination[]
   treatmentRecords TreatmentRecord[]
+
+  @@map("pets")
 }
 
 model Appointment {
-  id              String               @id @default(cuid())
-  petId           String
+  id              String               @id @default(auto()) @map("_id") @db.ObjectId
+  petId           String               @db.ObjectId
   pet             Pet                  @relation(fields: [petId], references: [id], onDelete: Cascade)
-  ownerId         String
+  ownerId         String               @db.ObjectId
   owner           User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  veterinarianId  String?
+  veterinarianId  String?              @db.ObjectId
   veterinarian    VeterinarianProfile? @relation(fields: [veterinarianId], references: [id], onDelete: SetNull)
   appointmentDate DateTime
   timeSlot        String
@@ -84,13 +90,15 @@ model Appointment {
   updatedAt       DateTime             @updatedAt
 
   treatmentRecord TreatmentRecord?
+
+  @@map("appointments")
 }
 
 model Vaccination {
-  id               String               @id @default(cuid())
-  petId            String
+  id               String               @id @default(auto()) @map("_id") @db.ObjectId
+  petId            String               @db.ObjectId
   pet              Pet                  @relation(fields: [petId], references: [id], onDelete: Cascade)
-  veterinarianId   String?
+  veterinarianId   String?              @db.ObjectId
   veterinarian     VeterinarianProfile? @relation(fields: [veterinarianId], references: [id], onDelete: SetNull)
   vaccineName      String
   vaccineType      String?
@@ -102,15 +110,17 @@ model Vaccination {
   status           String               @default("COMPLETED") // COMPLETED, PENDING, OVERDUE
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
+
+  @@map("vaccinations")
 }
 
 model TreatmentRecord {
-  id             String               @id @default(cuid())
-  petId          String
+  id             String               @id @default(auto()) @map("_id") @db.ObjectId
+  petId          String               @db.ObjectId
   pet            Pet                  @relation(fields: [petId], references: [id], onDelete: Cascade)
-  appointmentId  String?              @unique
+  appointmentId  String?              @unique @db.ObjectId
   appointment    Appointment?         @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
-  veterinarianId String?
+  veterinarianId String?              @db.ObjectId
   veterinarian   VeterinarianProfile? @relation(fields: [veterinarianId], references: [id], onDelete: SetNull)
   visitDate      DateTime
   symptoms       String
@@ -124,11 +134,13 @@ model TreatmentRecord {
   updatedAt      DateTime             @updatedAt
 
   prescriptions Prescription[]
+
+  @@map("treatment_records")
 }
 
 model Prescription {
-  id                String          @id @default(cuid())
-  treatmentRecordId String
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  treatmentRecordId String          @db.ObjectId
   treatmentRecord   TreatmentRecord @relation(fields: [treatmentRecordId], references: [id], onDelete: Cascade)
   medication        String
   dosage            String
@@ -136,11 +148,13 @@ model Prescription {
   duration          String
   instructions      String?
   createdAt         DateTime        @default(now())
+
+  @@map("prescriptions")
 }
 
 model Notification {
-  id        String   @id @default(cuid())
-  userId    String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   message   String
@@ -148,4 +162,6 @@ model Notification {
   isRead    Boolean  @default(false)
   link      String?
   createdAt DateTime @default(now())
+
+  @@map("notifications")
 }
