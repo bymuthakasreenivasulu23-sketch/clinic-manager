@@ -2,6 +2,8 @@ import { getSessionUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { apiSuccess, apiError } from '@/lib/utils';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const session = await getSessionUser();
   if (!session) {

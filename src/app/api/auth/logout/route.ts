@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { COOKIE_NAME } from '@/lib/auth';
 import { apiSuccess } from '@/lib/utils';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST() {
   const response = apiSuccess({ message: 'Logged out successfully.' });
   response.cookies.set({

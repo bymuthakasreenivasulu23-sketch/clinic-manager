@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { getSessionUser, hashPassword } from '@/lib/auth';
 import { apiSuccess, apiError } from '@/lib/utils';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const veterinarians = await prisma.veterinarianProfile.findMany({

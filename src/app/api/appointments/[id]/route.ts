@@ -4,6 +4,8 @@ import { getSessionUser } from '@/lib/auth';
 import { apiSuccess, apiError } from '@/lib/utils';
 import { startOfDay, endOfDay } from 'date-fns';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
