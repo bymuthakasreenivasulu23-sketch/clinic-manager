@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  role      String   @default("OWNER") // OWNER, VETERINARIAN, STAFF, ADMIN
+  status    String   @default("ACTIVE") // ACTIVE, INACTIVE
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pets                Pet[]
+  veterinarianProfile VeterinarianProfile?
+  appointments        Appointment[]
+  notifications       Notification[]
+}
+
+model VeterinarianProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialization String
+  licenseNumber  String
+  experience     Int      @default(1)
+  availability   String   @default("Mon-Fri: 9:00 AM - 5:00 PM")
+  bio            String?
+  avatar         String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  appointments     Appointment[]
+  vaccinations     Vaccination[]
+  treatmentRecords TreatmentRecord[]
+}
+
+model Pet {
+  id                 String    @id @default(cuid())
+  name               String
+  species            String // Dog, Cat, Bird, Rabbit, Other
+  breed              String
+  gender             String // Male, Female
+  dateOfBirth        DateTime?
+  age                Int?
+  weight             Float? // in kg
+  color              String?
+  microchipId        String?
+  allergies          String?
+  existingConditions String?
+  notes              String?
+  photo              String?
+  ownerId            String
+  owner              User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  appointments     Appointment[]
+  vaccinations     Vaccination[]
+  treatmentRecords TreatmentRecord[]
+}
+
+model Appointment {
+  id              String               @id @default(cuid())
+  petId           String
+  pet             Pet                  @relation(fields: [petId], references: [id], onDelete: Cascade)
+  ownerId         String
+  owner           User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  veterinarianId  String?
+  veterinarian    VeterinarianProfile? @relation(fields: [veterinarianId], references: [id], onDelete: SetNull)
+  appointmentDate DateTime
+  timeSlot        String
+  reason          String
+  notes           String?
+  status          String               @default("PENDING") // PENDING, CONFIRMED, COMPLETED, CANCELLED, REJECTED
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  treatmentRecord TreatmentRecord?
+}
+
+model Vaccination {
+  id               String               @id @default(cuid())
+  petId            String
+  pet              Pet                  @relation(fields: [petId], references: [id], onDelete: Cascade)
+  veterinarianId   String?
+  veterinarian     VeterinarianProfile? @relation(fields: [veterinarianId], references: [id], onDelete: SetNull)
+  vaccineName      String
+  vaccineType      String?
+  dateAdministered DateTime
+  nextDueDate      DateTime
+  dose             String?
+  batchNumber      String?
+  notes            String?
+  status           String               @default("COMPLETED") // COMPLETED, PENDING, OVERDUE
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+}
+
+model TreatmentRecord {
+  id             String               @id @default(cuid())
+  petId          String
+  pet            Pet                  @relation(fields: [petId], references: [id], onDelete: Cascade)
+  appointmentId  String?              @unique
+  appointment    Appointment?         @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  veterinarianId String?
+  veterinarian   VeterinarianProfile? @relation(fields: [veterinarianId], references: [id], onDelete: SetNull)
+  visitDate      DateTime
+  symptoms       String
+  diagnosis      String
+  treatment      String
+  weight         Float?
+  temperature    Float?
+  followUpDate   DateTime?
+  notes          String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  prescriptions Prescription[]
+}
+
+model Prescription {
+  id                String          @id @default(cuid())
+  treatmentRecordId String
+  treatmentRecord   TreatmentRecord @relation(fields: [treatmentRecordId], references: [id], onDelete: Cascade)
+  medication        String
+  dosage            String
+  frequency         String?
+  duration          String
+  instructions      String?
+  createdAt         DateTime        @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   @default("SYSTEM") // APPOINTMENT, VACCINATION, TREATMENT, SYSTEM
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+}
