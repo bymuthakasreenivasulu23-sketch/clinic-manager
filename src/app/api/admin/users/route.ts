@@ -36,6 +36,7 @@ export async function GET(req: NextRequest) {
         email: true,
         phone: true,
         role: true,
+        requestedRole: true,
         status: true,
         createdAt: true,
         _count: {

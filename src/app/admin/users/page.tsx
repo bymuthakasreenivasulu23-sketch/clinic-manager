@@ -227,17 +227,24 @@ export default function AdminUsersPage() {
                         </td>
 
                         <td className="py-4 px-5">
-                          <select
-                            value={u.role}
-                            disabled={updatingId === u.id}
-                            onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                            className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                          >
-                            <option value="OWNER">OWNER</option>
-                            <option value="VETERINARIAN">VETERINARIAN</option>
-                            <option value="STAFF">STAFF</option>
-                            <option value="ADMIN">ADMIN</option>
-                          </select>
+                          <div className="flex flex-col gap-1 items-start">
+                            <select
+                              value={u.role}
+                              disabled={updatingId === u.id}
+                              onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                              className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            >
+                              <option value="OWNER">OWNER</option>
+                              <option value="VETERINARIAN">VETERINARIAN</option>
+                              <option value="STAFF">STAFF</option>
+                              <option value="ADMIN">ADMIN</option>
+                            </select>
+                            {u.requestedRole && u.requestedRole !== u.role && (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5">
+                                Pending: {u.requestedRole}
+                              </span>
+                            )}
+                          </div>
                         </td>
 
                         <td className="py-4 px-5">
